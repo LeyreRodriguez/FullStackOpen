@@ -5,6 +5,8 @@ const App = () => {
   const [good, setGood] = useState(0)
   const [neutral, setNeutral] = useState(0)
   const [bad, setBad] = useState(0)
+  // const [all, setAll] = useState(0)
+
 
   const handleGoodClick = () =>{
     setGood(good + 1)
@@ -18,6 +20,18 @@ const App = () => {
     setBad(bad + 1)
   }
 
+  
+  const all = () => good + neutral + bad
+  
+
+  const average = () => {
+    return (good - bad) / all() 
+  }
+
+  const positive = () => {
+    return (good / all()) * 100
+  }
+
   return (
     <div>
       <Title text = "give feedback" /> 
@@ -25,9 +39,7 @@ const App = () => {
       <Button handleClick={handleNeutralClick} text="neutral" />
       <Button handleClick={handleBadClick} text="bad" />
       <Title text = "statistics" /> 
-      <Result text="good" result={good}></Result>
-      <Result text="neutral" result={neutral}></Result>
-      <Result text="bad" result={bad}></Result>
+      <Statistics good={good} neutral={neutral} bad={bad} all={all()} average={average()} positive={positive()} />
 
 
     </div>
@@ -50,14 +62,25 @@ const Title = ({text}) => {
   )
 }
 
-const Result = ({text, result}) => {
 
-  return (
+
+const Statistics = ({good, neutral, bad, all, average, positive}) => {
+
+  if(all === 0) {
+    return <div>No feedback given</div>
+  }
+
+  return(
     <div>
-        {text} {result}
+        <div>good {good}</div>
+        <div>neutral {neutral}</div>
+        <div>bad {bad}</div>
+        <div>all {all}</div>
+        <div>average {average}</div>
+        <div>positive {positive} %</div>
+
     </div>
   )
 }
-
 
 export default App
