@@ -39,13 +39,24 @@ const App = () => {
 
   const getRandomNumber = () => Math.floor(Math.random() * 7) + 1
   
+  let mostVotedIndex = 0;
+  for (let i = 1; i < anecdotes.length; i++) {
+    if (points[i] > points[mostVotedIndex]) {
+      mostVotedIndex = i;
+    }
+  }
 
   return (
     <div>
+      <Title text = "Anecdote of the day" /> 
       <Anecdote text={anecdotes[selected]} />
       <Votes value = {points[selected]} />
       <Button handleClick={handleVote} text = "Vote" />
       <Button handleClick={handleAnecdote} text = "Next Anecdote" />
+      <Title text = "Anecdote with most votes" /> 
+      <Anecdote text={anecdotes[mostVotedIndex]} />
+      <Votes value = {points[mostVotedIndex]} />
+
     </div>
   )
 }
@@ -66,14 +77,21 @@ const Votes = ({value}) => {
   )
 }
 const Button = ({ handleClick, text }) => (
-  
     <button onClick={handleClick}>
         {text}
-    </button>
-  
-  
+    </button>  
 )
 
+
+const Title = ({text}) => {
+  return (
+    <div>
+      <h1>
+        {text}
+      </h1>
+    </div>
+  )
+}
 
 
 export default App
