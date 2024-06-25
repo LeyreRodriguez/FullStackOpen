@@ -1,31 +1,25 @@
 const App = () => {
-  
   const course = 'Half Stack application development'
-  const part1 = {
-    name: 'Fundamentals of React',
-    exercises: 10
-  }
-  const part2 = {
-    name: 'Using props to pass data',
-    exercises: 7
-  }
-  const part3 = {
-    name: 'State of a component',
-    exercises: 14
-  }
-
+  const parts = [
+    {
+      name: 'Fundamentals of React',
+      exercises: 10
+    },
+    {
+      name: 'Using props to pass data',
+      exercises: 7
+    },
+    {
+      name: 'State of a component',
+      exercises: 14
+    }
+  ]
 
   return (
     <div>
-      <Header course = {course}/>
-      <Content
-        part1={part1.name} exercises1={part1.exercises}
-        part2={part2.name} exercises2={part2.exercises}
-        part3={part3.name} exercises3={part3.exercises}
-      />
-      <Total exercises1 = {part1.exercises} exercises2 = {part2.exercises} exercises3 = {part3.exercises} />
-      
-      
+      <Header course={course} />
+      <Content parts={parts} />
+      <Total parts={parts} />
     </div>
   )
 }
@@ -33,19 +27,18 @@ const App = () => {
 const Header = (props) => {
 
   return (
-  <div>
-    <h1>{props.course}</h1>
-
-  </div>
+    <div>
+      <h1>{props.course}</h1>
+    </div>
   )
 }
 
 const Content = (props) => {
   return (
     <div>
-      <Part part = {props.part1} exercises = {props.exercises1}/>
-      <Part part = {props.part2} exercises = {props.exercises2}/>
-      <Part part = {props.part3} exercises = {props.exercises3}/>
+      {props.parts.map((part, index) => (
+        <Part key={index} part={part.name} exercises={part.exercises} />
+      ))}
     </div>
   )
 }
@@ -61,12 +54,16 @@ const Part = (props) => {
 }
 
 const Total = (props) => {
+  let totalExercises = 0;
+  props.parts.forEach(part => {
+    totalExercises += part.exercises;
+  });
+
   return (
     <div>
       <p>
-        Number of exercises: { props.exercises1 + props.exercises2 + props.exercises3}
+        Number of exercises: {totalExercises}
       </p>
-  
     </div>
   )
 }
