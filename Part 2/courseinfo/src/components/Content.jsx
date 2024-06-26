@@ -4,11 +4,7 @@ import Total from "./Total"
 
 const Content = ({parts}) => {
 
-    let totalExercises = 0;
-    parts.forEach(part => {
-      totalExercises += part.exercises;
-    });
-
+    const total = parts.reduce((accumulator,currentValue) => accumulator + currentValue.exercises,0);
     return (
       <div>
 
@@ -16,7 +12,7 @@ const Content = ({parts}) => {
           <Part key={index} name={part.name} exercises={part.exercises} />
         ))} 
 
-        <Total amount = {totalExercises} />
+        <Total amount = {total} />
       </div>
     )
   }
