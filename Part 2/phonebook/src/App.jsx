@@ -9,7 +9,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
-  const [errorMessage, setErrorMessage] = useState(null)
+  const [notification, setNotification] = useState({ message: null, type: '' })
 
 
 
@@ -22,9 +22,9 @@ const App = () => {
       })
       .catch(error => {
         console.error('Failed to fetch persons:', error)
-        setErrorMessage('Failed to fetch persons')
+        setNotification({ message: 'Failed to fetch persons', type: 'error' })
         setTimeout(() => {
-          setErrorMessage(null)
+          setNotification({ message: null, type: '' })
         }, 5000)
       })
   }, [])
@@ -51,15 +51,15 @@ const App = () => {
           .then(updatedPerson => {
             
             setPersons(persons.map(person => person.id !== existingPerson.id ? person : updatedPerson))
-            setErrorMessage(`Updated ${newName}`)
+            setNotification({ message: `Updated ${newName}`, type: 'success' })
             setTimeout(() => {
-              setErrorMessage(null)
+              setNotification({ message: null, type: '' })
             }, 5000)
           })
           .catch(error => {
-            setErrorMessage(`Information of ${newName} has already been removed from server`)
+            setNotification({ message: `Information of ${newName} has already been removed from server`, type: 'error' })
             setTimeout(() => {
-              setErrorMessage(null)
+              setNotification({ message: null, type: '' })
             }, 5000)
           })
       }
@@ -68,16 +68,16 @@ const App = () => {
         .create(newPerson)
         .then(response => {
           setPersons(persons.concat(response))
-          setErrorMessage(`Added ${newName}`)
+          setNotification({ message: `Added ${newName}`, type: 'success' })
           setTimeout(() => {
-            setErrorMessage(null)
+            setNotification({ message: null, type: '' })
           }, 5000)
         })
         .catch(error => {
           console.error('Failed to create new person:', error)
-          setErrorMessage('Failed to create new person')
+          setNotification({ message: 'Failed to create new person', type: 'error' })
           setTimeout(() => {
-            setErrorMessage(null)
+            setNotification({ message: null, type: '' })
           }, 5000)
         })
     }
@@ -111,7 +111,7 @@ const App = () => {
   }
   return (
     <div>
-      <Notification message={errorMessage} />
+      <Notification message={notification.message} type={notification.type} />
       <h2>Phonebook</h2>
 
         <Filter
