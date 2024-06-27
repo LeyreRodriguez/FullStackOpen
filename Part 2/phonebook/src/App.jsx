@@ -34,21 +34,34 @@ const App = () => {
     setNewNumber(event.target.value)
   }
 
-  const addPerson = (event) =>{
+  const addPerson = (event) => {
     event.preventDefault()
-    const newPerson =  { name: newName, number : newNumber}
-    if (persons.some(person => person.name === newName)) {
-      alert(`${newName} is already added to phonebook`);
-    } else {
+    const newPerson = { name: newName, number: newNumber }
+    const existingPerson = persons.find(person => person.name === newName)
 
-      personService 
+    if (existingPerson) {
+      if (window.confirm(`${existingPerson.name} is already added to phonebook, replace the old number with a new one?`)) {
+        personService
+          .update(existingPerson.id, newPerson)
+          .then(updatedPerson => {
+            setPersons(persons.map(person => person.id !== existingPerson.id ? person : updatedPerson))
+          })
+          .catch(error => {
+            console.error('Failed to update number:', error)
+          })
+      }
+    } else {
+      personService
         .create(newPerson)
         .then(response => {
           setPersons(persons.concat(response))
         })
-
+        .catch(error => {
+          console.error('Failed to create new person:', error)
+        })
     }
-    setNewName('') 
+
+    setNewName('')
     setNewNumber('')
   }
 
