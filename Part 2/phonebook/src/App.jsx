@@ -3,6 +3,8 @@ import axios from 'axios'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
 import Persons from './components/Persons'
+import personService  from './services/calls'
+
 const App = () => {
   const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
@@ -10,11 +12,15 @@ const App = () => {
   const [filter, setFilter] = useState('')
 
 
+
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        setPersons(response.data)
+    personService 
+      .read()
+      .then(initialPersons => {
+        setPersons(initialPersons)
+      })
+      .catch(error => {
+        console.error('Failed to fetch persons:', error)
       })
   }, [])
 
@@ -34,10 +40,11 @@ const App = () => {
     if (persons.some(person => person.name === newName)) {
       alert(`${newName} is already added to phonebook`);
     } else {
-      axios
-        .post('http://localhost:3001/persons', newPerson)
+
+      personService 
+        .create(newPerson)
         .then(response => {
-          setPersons(persons.concat(newPerson));
+          setPersons(persons.concat(response))
         })
 
     }
