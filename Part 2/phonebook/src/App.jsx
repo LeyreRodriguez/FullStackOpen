@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
 import Persons from './components/Persons'
 import personService  from './services/calls'
-
+import Notification from './components/Notification'
 const App = () => {
   const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
+  const [errorMessage, setErrorMessage] = useState(null)
 
 
 
@@ -18,9 +18,14 @@ const App = () => {
       .read()
       .then(initialPersons => {
         setPersons(initialPersons)
+        
       })
       .catch(error => {
         console.error('Failed to fetch persons:', error)
+        setErrorMessage('Failed to fetch persons')
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
       })
   }, [])
 
@@ -44,10 +49,18 @@ const App = () => {
         personService
           .update(existingPerson.id, newPerson)
           .then(updatedPerson => {
+            
             setPersons(persons.map(person => person.id !== existingPerson.id ? person : updatedPerson))
+            setErrorMessage(`Updated ${newName}`)
+            setTimeout(() => {
+              setErrorMessage(null)
+            }, 5000)
           })
           .catch(error => {
-            console.error('Failed to update number:', error)
+            setErrorMessage(`Information of ${newName} has already been removed from server`)
+            setTimeout(() => {
+              setErrorMessage(null)
+            }, 5000)
           })
       }
     } else {
@@ -55,9 +68,17 @@ const App = () => {
         .create(newPerson)
         .then(response => {
           setPersons(persons.concat(response))
+          setErrorMessage(`Added ${newName}`)
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)
         })
         .catch(error => {
           console.error('Failed to create new person:', error)
+          setErrorMessage('Failed to create new person')
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)
         })
     }
 
@@ -90,6 +111,7 @@ const App = () => {
   }
   return (
     <div>
+      <Notification message={errorMessage} />
       <h2>Phonebook</h2>
 
         <Filter
