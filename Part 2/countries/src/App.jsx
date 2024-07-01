@@ -32,6 +32,11 @@ function App() {
     ? countries.filter(country => country.name.common.toLowerCase().includes(filter.toLowerCase()))
     : countries;
 
+
+  const handleView = area => {
+ //   const countrie = countries.find(a => a.area === area)
+    setCountries(countries.filter(a => a.area === area))
+  }
   return (
     <div>
         <div>
@@ -57,7 +62,11 @@ function App() {
             ) : (
               <ul>
                 {countriesToShow.map((country, index) => (
-                  <li key={index}>{country.name.common}</li>
+                  <li key={index}>
+                    {country.name.common}
+                    <button onClick = {() => handleView(country.area)}> show </button> 
+                  
+                  </li>
                 ))}
               </ul>
             )}
