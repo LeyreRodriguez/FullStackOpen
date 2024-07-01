@@ -83,6 +83,24 @@ app.get('/api/persons/:id', (request, response) => {
       id: generateId(),
     }
     
+
+    if (!body.name) {
+        return response.status(400).json({ 
+          error: 'name missing' 
+        })
+      } else if (!body.number) {
+        return response.status(400).json({ 
+            error: 'number missing' 
+          })
+      }
+
+      const nameExists = persons.some(entry => entry.name === body.name);
+    if (nameExists) {
+        return response.status(400).json({ 
+            error: 'name must be unique' 
+        });
+    }
+
     persons = persons.concat(person)
   
     response.json(person)
