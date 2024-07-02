@@ -1,7 +1,13 @@
+require('dotenv').config()
+
 const express = require('express')
 const morgan = require('morgan');
+const mongoose = require('mongoose');
+
 const app = express()
 const cors = require('cors')
+
+const Person = require('./models/person')
 let persons = [
     { 
       "id": 1,
@@ -26,93 +32,99 @@ let persons = [
 ]
 
 app.use(express.json())
+app.use(cors())
+app.use(express.static('dist'))
+
 morgan.token('body', (req) => {
   return JSON.stringify(req.body);
 });
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'));
-app.use(cors())
-app.use(express.static('dist'))
+
+
+
 app.get('/api/persons', (request, response) => {
-  response.json(persons)
+  Person.find({}).then(persons => {
+    response.json(persons)
+  })
 })
 
 
 app.get('/info', (request, response) => {
-    const currentTime = new Date().toLocaleString();  
-    const numberOfEntries = persons.length;  
-    
-    
-    response.send(`
+  Person.countDocuments({})
+    .then(count => {
+      const currentTime = new Date().toLocaleString();
+      response.send(`
         <div>
-            <p>Phonebook has info for ${numberOfEntries} people.</p>
-            <p>${currentTime}</p>
+          <p>Phonebook has info for ${count} people.</p>
+          <p>${currentTime}</p>
         </div>
-    `);
-})
+      `);
+    })
+    .catch(error => {
+      console.error('Error fetching person count:', error);
+      response.status(500).json({ error: 'Something went wrong' });
+    });
+});
 
 
-app.get('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    const person = persons.find(person => person.id === id)
-    if (person) {
+  
+  app.get('/api/persons/:id', (request, response) => {
+    Person.findById(request.params.id).then(person => {
       response.json(person)
-    } else {
-      console.log('x')
-      response.status(404).end()
-    }
+    })
+  })
+
+  
+
+
+  app.delete('/api/persons/:id', (request, response, next) => {
+    Person.findByIdAndDelete(request.params.id)
+      .then(result => {
+        response.status(204).end()
+      })
+      .catch(error => next(error))
   })
 
 
-  app.delete('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    persons = persons.filter(person => person.id !== id)
-  
-    response.status(204).end()
-  })
 
-  const generateId = () => {
-    const maxId = persons.length > 0
-      ? Math.max(...persons.map(n => n.id))
-      : 0
-    return maxId + 1
-  }
-  
+
+
   app.post('/api/persons', (request, response) => {
-    const body = request.body
+    const body = request.body;
   
-    
-  
-    const person = {
-      name: body.name,
-      number: body.number,
-      id: generateId(),
+    if (!body.name || !body.number) {
+      return response.status(400).json({ error: 'name or number missing' });
     }
-    
-
-    if (!body.name) {
-        return response.status(400).json({ 
-          error: 'name missing' 
-        })
-      } else if (!body.number) {
-        return response.status(400).json({ 
-            error: 'number missing' 
-          })
-      }
-
-      const nameExists = persons.some(entry => entry.name === body.name);
-    if (nameExists) {
-        return response.status(400).json({ 
-            error: 'name must be unique' 
+  
+    Person.findOne({ name: body.name })
+      .then(existingPerson => {
+        if (existingPerson) {
+          return response.status(400).json({ error: 'name must be unique' });
+        }
+  
+        const person = new Person({
+          name: body.name,
+          number: body.number
         });
-    }
-
-    persons = persons.concat(person)
   
-    response.json(person)
-  })
+        person.save()
+          .then(savedPerson => {
+            response.json(savedPerson);
+          })
+          .catch(error => {
+            console.error(error);
+            response.status(500).json({ error: 'something went wrong' });
+          });
+      })
+      .catch(error => {
+        console.error(error);
+        response.status(500).json({ error: 'something went wrong' });
+      });
+  });
 
-  const PORT = process.env.PORT || 3001
+
+  const PORT = process.env.PORT
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
   })
