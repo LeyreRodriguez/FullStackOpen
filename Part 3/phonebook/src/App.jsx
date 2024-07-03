@@ -57,11 +57,12 @@ const App = () => {
             }, 5000)
           })
           .catch(error => {
-            setNotification({ message: `Information of ${newName} has already been removed from server`, type: 'error' })
+            const errorMessage = error.response?.data?.error || `Information of ${newName} has already been removed from server`;
+            setNotification({ message: errorMessage, type: 'error' });
             setTimeout(() => {
-              setNotification({ message: null, type: '' })
-            }, 5000)
-          })
+              setNotification({ message: null, type: '' });
+            }, 5000);
+          });
       }
     } else {
       personService
@@ -74,12 +75,13 @@ const App = () => {
           }, 5000)
         })
         .catch(error => {
-          console.error('Failed to create new person:', error)
-          setNotification({ message: 'Failed to create new person', type: 'error' })
+          const errorMessage = error.response?.data?.error || 'Failed to create new person';
+          console.error(errorMessage);
+          setNotification({ message: errorMessage, type: 'error' });
           setTimeout(() => {
-            setNotification({ message: null, type: '' })
-          }, 5000)
-        })
+            setNotification({ message: null, type: '' });
+          }, 5000);
+        });
     }
 
     setNewName('')
