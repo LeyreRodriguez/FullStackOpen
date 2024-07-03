@@ -50,7 +50,7 @@ app.get('/info', (request, response, next) => {
     Person.findById(request.params.id)
     .then(person => {
       if (person) {
-        response.json(person);
+        response.json(person.toJSON());
       } else {
         response.status(404).end();
       }
@@ -117,7 +117,7 @@ app.get('/info', (request, response, next) => {
       })
       .catch(error => next(error));
   });
-  
+
 
 
 
