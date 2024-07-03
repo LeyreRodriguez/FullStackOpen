@@ -100,6 +100,25 @@ app.get('/info', (request, response, next) => {
       .catch(error => next(error));
   });
 
+  app.put('/api/persons/:id', (request, response, next) => {
+    const body = request.body;
+  
+    const person = {
+      number: body.number,
+    };
+  
+    Person.findByIdAndUpdate(request.params.id, person, { new: true, runValidators: true, context: 'query' })
+      .then(updatedPerson => {
+        if (updatedPerson) {
+          response.json(updatedPerson);
+        } else {
+          response.status(404).end();
+        }
+      })
+      .catch(error => next(error));
+  });
+  
+
 
 
   const errorHandler = (error, request, response, next) => {
