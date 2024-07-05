@@ -1,4 +1,4 @@
-const { test, after, beforeEach } = require('node:test')
+const { test, after, beforeEach, describe, it } = require('node:test')
 const assert = require('node:assert')
 
 const Blog = require('../models/blog')
@@ -90,6 +90,26 @@ test.only('notes are returned as json', async () => {
     assert.strictEqual(response.body.length, 2)
   })
 
+
+  describe('Blog model', () => {
+    it('should have an id property instead of _id', () => {
+      const blog = new Blog({
+        title: "Go To Statement Considered Harmful",
+        author: "Edsger W. Dijkstra",
+        url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
+        likes: 5
+      });
+
+      const blogObject = blog.toJSON();
+
+      assert.strictEqual(blogObject.id !== undefined, true);
+      assert.strictEqual(blogObject._id, undefined);
+    });
+  });
+
+
 after(async () => {
   await mongoose.connection.close()
 })
+
+
