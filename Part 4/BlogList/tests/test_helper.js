@@ -31,8 +31,13 @@ const blogs = [
     await blog.remove();
     return blog._id.toString();
   };
+  const usersInDb = async () => {
+    const users = await User.find({})
+    return users.map(u => u.toJSON())
+  }
+
   module.exports = {
-    blogs, blogsInDb, nonExistentId
+    blogs, blogsInDb, nonExistentId,usersInDb
   }
 
 
