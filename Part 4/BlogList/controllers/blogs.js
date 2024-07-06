@@ -43,6 +43,29 @@ const Blog = require('../models/blog')
     response.status(204).end()
   })
 
+  blogsRouter.put('/:id', async (request, response) => {
+    const { likes } = request.body;
+
+    try {
+      const updatedBlog = await Blog.findByIdAndUpdate(
+        request.params.id,
+        { likes },
+        { new: true, runValidators: true, context: 'query' }
+      );
+
+      if (updatedBlog) {
+        response.json(updatedBlog);
+      } else {
+        response.status(404).end();
+      }
+    } catch (error) {
+      response.status(400).json({ error: 'Malformed id' });
+    }
+  });
+
+
+
+
 
 
 

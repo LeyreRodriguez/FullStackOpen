@@ -144,6 +144,43 @@ describe(' initial testing', () => {
       assert.strictEqual(blogsAtEnd.length, blogsAtStart.length);
     });
 
+
+
+  });
+
+
+  describe('Updating a blog', () => {
+    test('succeeds with valid data', async () => {
+      const blogsAtStart = await helper.blogsInDb();
+      const blogToUpdate = blogsAtStart[0];
+
+      const updatedBlogData = { likes: blogToUpdate.likes + 1 };
+
+      const response = await api
+        .put(`/api/blogs/${blogToUpdate.id}`)
+        .send(updatedBlogData)
+        .expect(200)
+        .expect('Content-Type', /application\/json/);
+
+      const updatedBlog = response.body;
+      assert.strictEqual(updatedBlog.likes, blogToUpdate.likes + 1);
+
+      const blogsAtEnd = await helper.blogsInDb();
+      const likes = blogsAtEnd.map(blog => blog.likes);
+      assert(likes.includes(updatedBlog.likes));
+    });
+
+    test('fails with status code 400 if id is invalid', async () => {
+      const invalidId = '123456invalid';
+      const updatedBlogData = { likes: 10 };
+
+      await api
+        .put(`/api/blogs/${invalidId}`)
+        .send(updatedBlogData)
+        .expect(400);
+    });
+
+    
   });
 
 
