@@ -2,11 +2,10 @@ import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import Login from './components/Login'
 import Form from './components/Form'
-
+import Notification from './components/Notification'
 
 import blogService from './services/blogs'
 import loginService from './services/login'
-
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -18,11 +17,14 @@ const App = () => {
 
   const [user, setUser] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
+  const [notification, setNotification] = useState({ message: null, type: '' })
 
   useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs( blogs )
-    )
+    const fetchBlogs = async () => {
+      const blogs = await blogService.getAll()
+      setBlogs(blogs)
+    }
+    fetchBlogs()
   }, [])
 
   useEffect(() => {
@@ -33,10 +35,6 @@ const App = () => {
       blogService.setToken(user.token)
     }
   }, [])
-
-
-
-
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -56,53 +54,79 @@ const App = () => {
       setPassword('')
     } catch (exception) {
       setErrorMessage('Wrong credentials')
+      setNotification({ message: 'Wrong username or password', type: 'error' })
+
       setTimeout(() => {
         setErrorMessage(null)
+        setNotification({ message: null, type: '' })
       }, 5000)
     }
   }
 
-  const handleLogout = async (event) => {
+  const handleLogout = () => {
     window.localStorage.removeItem('loggedBlogappUser')
     setUser(null)
     window.location.reload()
   }
 
-  const handleNewPost = async(event) => {
-    const newPost = { title: title, author: author, url : url }
+  const handleNewPost = async (event) => {
+    event.preventDefault()
 
-    blogService
-        .create(newPost)
-        .then(response => {
-          setBlogs(blogs.concat(response))
-          setTimeout(() => {
-            setNotification({ message: null, type: '' })
-          }, 5000)
-        })
+    const newPost = { title, author, url }
+
+    try {
+      const response = await blogService.create(newPost)
+      setBlogs(blogs.concat(response))
+      setNotification({ message: `A new blog "${title}" by ${author} added`, type: 'success' })
+      setTitle('')
+      setAuthor('')
+      setUrl('')
+      setTimeout(() => {
+        setNotification({ message: null, type: '' })
+      }, 5000)
+    } catch (exception) {
+      setNotification({ message: 'Error adding blog post', type: 'error' })
+      setTimeout(() => {
+        setNotification({ message: null, type: '' })
+      }, 5000)
+    }
   }
 
   const loginForm = () => (
-    <Login username ={username} password={password} handleLogin = {handleLogin} setUsername={setUsername} setPassword={setPassword}></Login>
+    <Login
+      username={username}
+      password={password}
+      handleLogin={handleLogin}
+      setUsername={setUsername}
+      setPassword={setPassword}
+    />
   )
 
   const blogsForm = () => (
     <div>
       <div>
         <h2>Create new</h2>
-        <br>
-        </br>
-        <Form author ={author} title={title} url = {url} handleNewPost = {handleNewPost} setAuthor={setAuthor} setTitle={setTitle} setUrl={setUrl}></Form>
-        <br></br>
+        <Form
+          author={author}
+          title={title}
+          url={url}
+          handleNewPost={handleNewPost}
+          setAuthor={setAuthor}
+          setTitle={setTitle}
+          setUrl={setUrl}
+        />
       </div>
       <h2>Posts</h2>
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} />
       )}
-
     </div>
   )
+
   return (
     <div>
+      <Notification message={notification.message} type={notification.type} />
+
       <h2>Blogs</h2>
 
       {user === null ?
@@ -113,8 +137,6 @@ const App = () => {
           {blogsForm()}
         </div>
       }
-
-
     </div>
   )
 }
