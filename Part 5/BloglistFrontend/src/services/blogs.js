@@ -27,4 +27,11 @@ const update = (id, newObject) => {
   return request.then(response => response.data)
 }
 
-export default { getAll, create, update, setToken }
+
+const createPost = newPost => {
+  const request =  axios.post(baseUrl, newPost)
+  return request.then(response => response.data)
+
+}
+
+export default { getAll, create, update, setToken, createPost }
